@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Input</title>
+    <script defer>
+        function setTimestampAndUUID() {
+            const now = new Date();
+            const formatted = now.toISOString().replace('T', ' ').substring(0, 19);
+            document.getElementById("timestamp").value = formatted;
+            document.getElementById("customer_id").value = crypto.randomUUID();
+        }
+
+        async function closeWindowAndShutdown() {
+            try {
+                await fetch("/shutdown", { method: "POST" });
+                setTimeout(() => {
+                    window.open('', '_self', '').close();
+                    window.location.replace("about:blank");
+                }, 1000);
+            } catch {
+                alert("Failed to close automatically. Please close this tab manually.");
+            }
+        }
+
+        function contactApplicationTeam() {
+            const customerId = document.getElementById("customer_id").value;
+            window.location.href = `mailto:office@applicationform.com?subject=Your%20program%20application%20-%20ID%20${customerId}`;
+            setTimeout(closeWindowAndShutdown, 2000);
+        }
+    </script>
+</head>
+<body onload="setTimestampAndUUID()">
+    <h2>Please provide your details:</h2>
+    <form action="/" method="post">
+        <table>
+            <tbody>
+                <tr>
+                    <td><label for="timestamp">Timestamp:</label></td>
+                    <td><input type="text" id="timestamp" name="timestamp" readonly autocomplete="off"></td>
+                </tr>
+                <tr>
+                    <td><label for="customer_id">Customer ID:</label></td>
+                    <td><input type="text" id="customer_id" name="customer_id" readonly autocomplete="off"></td>
+                    <td>Unique identifier for the customer</td>
+                </tr>
+                <tr>
+                    <td><label for="age">Age:</label></td>
+                    <td><input type="number" id="age" name="age" required></td>
+                    <td>The age of the customer</td>
+                </tr>
+                <tr>
+                    <td><label for="gender">Gender:</label></td>
+                    <td>
+                        <select id="gender" name="gender">
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    </td>
+                    <td>The gender of the customer</td>
+                </tr>
+                <tr>
+                    <td><label for="marital_status">Marital Status:</label></td>
+                    <td>
+                        <select id="marital_status" name="marital_status">
+                            <option value="0">Divorced</option>
+                            <option value="1">Married</option>
+                            <option value="2">Separated</option>
+                            <option value="3">Single</option>
+                            <option value="4">Widowed</option>
+                        </select>
+                    </td>
+                    <td>The marital status of the customer</td>
+                </tr>
+                <tr>
+                    <td><label for="occupation">Occupation:</label></td>
+                    <td>
+                        <select id="occupation" name="occupation">
+                            <option value="0">Artist</option>
+                            <option value="1">Doctor</option>
+                            <option value="2">Engineer</option>
+                            <option value="3">Entrepreneur</option>
+                            <option value="4">Lawyer</option>
+                            <option value="5">Manager</option>
+                            <option value="6">Nurse</option>
+                            <option value="7">Salesperson</option>
+                            <option value="8">Teacher</option>
+                        </select>
+                    </td>
+                    <td>The occupation of the customer</td>
+                </tr>
+                <tr>
+                    <td><label for="income_level">Income Level:</label></td>
+                    <td><input type="number" step="0.01" id="income_level" name="income_level" required></td>
+                    <td>The income level of the customer</td>
+                </tr>
+                <tr>
+                    <td><label for="education_level">Education Level:</label></td>
+                    <td>
+                        <select id="education_level" name="education_level">
+                            <option value="0">Associate Degree</option>
+                            <option value="1">Bachelor's Degree</option>
+                            <option value="2">Doctorate</option>
+                            <option value="3">High School Diploma</option>
+                            <option value="4">Master's Degree</option>
+                        </select>
+                    </td>
+                    <td>The highest educational qualification</td>
+                </tr>
+                <tr>
+                    <td><label for="credit_score">Credit Score:</label></td>
+                    <td><input type="number" id="credit_score" name="credit_score" required></td>
+                    <td>The customer's creditworthiness score</td>
+                </tr>
+                <tr>
+                    <td><label for="driving_record">Driving Record:</label></td>
+                    <td>
+                        <select id="driving_record" name="driving_record">
+                            <option value="0">Accident</option>
+                            <option value="1">Clean</option>
+                            <option value="2">DUI</option>
+                            <option value="3">Major Violations</option>
+                            <option value="4">Minor Violations</option>
+                        </select>
+                    </td>
+                    <td>The customer's history of traffic violations</td>
+                </tr>
+                <tr>
+                    <td><label for="life_events">Life Events:</label></td>
+                    <td>
+                        <select id="life_events" name="life_events">
+                            <option value="0">Childbirth</option>
+                            <option value="1">Divorce</option>
+                            <option value="2">Job Change</option>
+                            <option value="3">Marriage</option>
+                            <option value="4">Retirement</option>
+                        </select>
+                    </td>
+                    <td>Major life events affecting insurance needs</td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <input type="submit" value="Check Fraud Probability">
+    </form>
+    {% if fraud_probability is not none %}
+        <h3 style="color: {{ fraud_risk_color }};">Fraud Risk: {{ fraud_probability | round(3) }}</h3>
+        <p>{{ message }}</p>
+        <button onclick="closeWindowAndShutdown()">Leave Application Form</button>
+        <button onclick="contactApplicationTeam()">Contact Application Team</button>
+    {% endif %}
+</body>
+</html>

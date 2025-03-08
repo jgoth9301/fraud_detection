@@ -1,0 +1,13 @@
+pytest
+questionary
+matplotlib
+pandas
+scikit-learn
+joblib
+numpy
+flask
+flask-sqlalchemy
+mlflow
+xgboost
+psutil
+kaggle
