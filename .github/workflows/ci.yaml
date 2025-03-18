@@ -4,6 +4,7 @@ on:
   schedule:
     # Run on the first day of each month at 00:00 UTC
     - cron: '0 0 1 * *'
+  workflow_dispatch:      # manual run of WF for testing
 
 jobs:
   monthly-retrain:
