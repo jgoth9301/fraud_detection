@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns/410194847540976985/25c08ccacd97466da7e439b145036550/artifacts
+end_time: 1742267028142
+entry_point_name: ''
+experiment_id: '410194847540976985'
+lifecycle_stage: active
+run_id: 25c08ccacd97466da7e439b145036550
+run_name: RandomForest-RiskGroup-5classes
+run_uuid: 25c08ccacd97466da7e439b145036550
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742266983227
+status: 3
+tags: []
+user_id: juerg

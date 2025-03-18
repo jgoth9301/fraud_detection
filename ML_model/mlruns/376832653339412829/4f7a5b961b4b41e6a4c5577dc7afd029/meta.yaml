@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns/376832653339412829/4f7a5b961b4b41e6a4c5577dc7afd029/artifacts
+end_time: 1742192565899
+entry_point_name: ''
+experiment_id: '376832653339412829'
+lifecycle_stage: active
+run_id: 4f7a5b961b4b41e6a4c5577dc7afd029
+run_name: unruly-frog-356
+run_uuid: 4f7a5b961b4b41e6a4c5577dc7afd029
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742192466247
+status: 3
+tags: []
+user_id: juerg

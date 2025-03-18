@@ -1,0 +1,6 @@
+artifact_location: file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns/376832653339412829
+creation_time: 1742182599111
+experiment_id: '376832653339412829'
+last_update_time: 1742182599111
+lifecycle_stage: active
+name: fraud_detection_retrained

@@ -1,0 +1,6 @@
+artifact_location: file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns/410194847540976985
+creation_time: 1741430526077
+experiment_id: '410194847540976985'
+last_update_time: 1741430526077
+lifecycle_stage: active
+name: fraud_detection_risk_model_5_classes

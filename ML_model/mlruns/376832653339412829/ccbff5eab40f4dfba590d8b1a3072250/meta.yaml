@@ -1,0 +1,16 @@
+artifact_uri: file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns/376832653339412829/ccbff5eab40f4dfba590d8b1a3072250/artifacts
+deleted_time: 1742192410510
+end_time: 1742182599427
+entry_point_name: ''
+experiment_id: '376832653339412829'
+lifecycle_stage: deleted
+run_id: ccbff5eab40f4dfba590d8b1a3072250
+run_name: RandomForest-RiskGroup-5classes-Retrained
+run_uuid: ccbff5eab40f4dfba590d8b1a3072250
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742182599385
+status: 4
+tags: []
+user_id: juerg

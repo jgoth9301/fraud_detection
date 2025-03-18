@@ -1,0 +1,15 @@
+artifact_uri: file:C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/ML_model_retraining/ML_model/mlruns/341425951379767278/a7d999a218ad4e48b71d0d4da1b6aa33/artifacts
+end_time: 1742277083112
+entry_point_name: ''
+experiment_id: '341425951379767278'
+lifecycle_stage: active
+run_id: a7d999a218ad4e48b71d0d4da1b6aa33
+run_name: silent-cow-940
+run_uuid: a7d999a218ad4e48b71d0d4da1b6aa33
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742277070670
+status: 3
+tags: []
+user_id: juerg

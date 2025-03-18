@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns/376832653339412829/dea86bf600444116a0fef6549fd7a506/artifacts
+end_time: 1742185901587
+entry_point_name: ''
+experiment_id: '376832653339412829'
+lifecycle_stage: active
+run_id: dea86bf600444116a0fef6549fd7a506
+run_name: casual-zebra-204
+run_uuid: dea86bf600444116a0fef6549fd7a506
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742185801303
+status: 3
+tags: []
+user_id: juerg

@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/700e5822c30b40c3bb0bea2122c60bca/artifacts
+end_time: 1742201265348
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 700e5822c30b40c3bb0bea2122c60bca
+run_name: dashing-midge-2
+run_uuid: 700e5822c30b40c3bb0bea2122c60bca
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742201265127
+status: 3
+tags: []
+user_id: juerg

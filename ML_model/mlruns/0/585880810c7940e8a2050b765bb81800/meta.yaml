@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/585880810c7940e8a2050b765bb81800/artifacts
+end_time: 1741431951001
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 585880810c7940e8a2050b765bb81800
+run_name: illustrious-yak-206
+run_uuid: 585880810c7940e8a2050b765bb81800
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1741431950848
+status: 3
+tags: []
+user_id: juerg
