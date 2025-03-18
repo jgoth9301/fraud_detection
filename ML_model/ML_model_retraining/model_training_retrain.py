@@ -3,12 +3,16 @@ import sqlite3
 import mlflow
 import mlflow.sklearn
 import pandas as pd
+import datetime
+import calendar
+from dateutil.relativedelta import relativedelta
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import StandardScaler
 from mlflow.models.signature import infer_signature
+
 
 def create_risk_group(df, sum_col="claim_sum"):
     """
@@ -18,6 +22,7 @@ def create_risk_group(df, sum_col="claim_sum"):
     df["Risk_Group"] = pd.qcut(df[sum_col], q=5, labels=False, duplicates="drop") + 1
     df.drop(columns=[sum_col], inplace=True)
     return df
+
 
 def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_estimators):
     """
@@ -38,10 +43,34 @@ def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_esti
 
     return rf, acc, prec, rec, f1
 
+
+def compute_filter_dates():
+    """
+    Computes the filter dates based on the current date:
+      - Start date: first day of previous month at 00:00:00
+      - End date: last day of previous month at 23:59:59
+    Returns the dates formatted as "dd.mm.yyyy HH:MM:SS".
+    """
+    now = datetime.datetime.now()
+    # First day of current month at 00:00:00
+    current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # First day of previous month
+    previous_month_start = current_month_start - relativedelta(months=1)
+    # Determine last day of the previous month
+    last_day = calendar.monthrange(previous_month_start.year, previous_month_start.month)[1]
+    # Last day of previous month at 23:59:59
+    previous_month_end = previous_month_start.replace(day=last_day, hour=23, minute=59, second=59)
+
+    start_date_str = previous_month_start.strftime("%d.%m.%Y %H:%M:%S")
+    end_date_str = previous_month_end.strftime("%d.%m.%Y %H:%M:%S")
+    return start_date_str, end_date_str
+
+
 def main():
     """
     Main function:
     1) Reads start_date and end_date from 'training_timeframe.csv' (dayfirst format).
+       If the file is not found, computes the dates directly.
     2) Reads data from 'fraud_detection.db': 'fraud_detection' (customer features) and
        'claim_tracking' (claim_sum) tables.
     3) Converts DB 'timestamp' to datetime (dayfirst=True).
@@ -51,29 +80,29 @@ def main():
     7) Performs hyperparameter tuning for a RandomForest, logs runs to MLflow,
        saves results, prints best model info, retrains the best model, and logs it.
     """
-
-    # 1) Read the date range from training_timeframe.csv (semicolon-delimited)
+    # 1) Get the date range for filtering
     timeframe_csv = "./ML_model/ML_model_retraining/training_timeframe.csv"
-    df_timeframe = pd.read_csv(timeframe_csv, delimiter=';')
+    if os.path.exists(timeframe_csv):
+        df_timeframe = pd.read_csv(timeframe_csv, delimiter=';')
+        # We assume exactly one row: columns "id", "start_date", "end_date"
+        start_date_str = df_timeframe.loc[0, "start_date"]  # e.g. "01.01.2025 00:00:00"
+        end_date_str = df_timeframe.loc[0, "end_date"]  # e.g. "31.01.2025 23:59:59"
+    else:
+        print(f"File '{timeframe_csv}' not found. Computing filter dates directly.")
+        start_date_str, end_date_str = compute_filter_dates()
 
-    # We assume exactly one row: columns "id", "start_date", "end_date"
-    start_date_str = df_timeframe.loc[0, "start_date"]  # e.g. "01.01.2025 00:00:00"
-    end_date_str = df_timeframe.loc[0, "end_date"]      # e.g. "31.01.2025 23:59:59"
-
-    # Convert to datetime with dayfirst=True so "01.01.2025 00:00:00" is parsed as 1 Jan 2025
+    # Convert to datetime with dayfirst=True so that "01.01.2025 00:00:00" is parsed correctly
     start_date_dt = pd.to_datetime(start_date_str, dayfirst=True)
     end_date_dt = pd.to_datetime(end_date_str, dayfirst=True)
 
     # ----------------------------------------------------------------------------
     # 2) MLflow config
-    #    Use a relative, Linux-friendly path for the local mlruns folder:
-    #    "file:./ML_model/mlruns" will work on both Windows (if run from the project root)
-    #    and Linux (e.g., on GitHub Actions).
+    #    Use a relative, Linux-friendly path for the local mlruns folder.
     # ----------------------------------------------------------------------------
     mlflow.set_tracking_uri("file:./ML_model/mlruns")
     mlflow.set_experiment("fraud_detection_retrained")
 
-    # Path to the SQLite DB (use a relative path)
+    # Path to the SQLite DB (using a relative path)
     db_path = "./HTML_request/instance/fraud_detection.db"
 
     # 3) Connect and load data
@@ -82,7 +111,7 @@ def main():
     df_claim = pd.read_sql_query("SELECT * FROM claim_tracking", conn)
     conn.close()
 
-    # Convert 'timestamp' column to datetime, also dayfirst=True
+    # Convert 'timestamp' column to datetime, also with dayfirst=True
     df_customer['timestamp'] = pd.to_datetime(
         df_customer['timestamp'],
         dayfirst=True,
@@ -98,7 +127,7 @@ def main():
     df_customer = df_customer[
         (df_customer['timestamp'] >= start_date_dt) &
         (df_customer['timestamp'] <= end_date_dt)
-    ]
+        ]
 
     print("\n=== DEBUG: After date filtering ===")
     print("df_customer shape:", df_customer.shape)
@@ -200,7 +229,7 @@ def main():
     print("\nBest Model Found:")
     print(best_model_info)
 
-    # Retrain final model with best hyperparams
+    # Retrain final model with best hyperparameters
     best_max_depth = int(best_model_info["max_depth"])
     best_n_estimators = int(best_model_info["n_estimators"])
     final_model, acc_final, prec_final, rec_final, f1_final = train_and_evaluate_model(
@@ -227,6 +256,7 @@ def main():
     print("\nFinal model trained and logged to MLflow!")
     print(f"Final Accuracy: {acc_final:.3f}, F1-Score: {f1_final:.3f}")
     mlflow.end_run()
+
 
 if __name__ == "__main__":
     main()

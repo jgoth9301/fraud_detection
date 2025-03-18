@@ -17,3 +17,7 @@ venv/
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# Override any potential ignores for .db or .csv files
+!*.db
+!*.csv
