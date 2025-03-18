@@ -32,7 +32,26 @@
     </script>
 </head>
 <body onload="setTimestampAndUUID()">
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="/">Home</a>
+        {% if current_user.is_authenticated %}
+            <a href="/dashboard">Dashboard</a>
+            {% if current_user.role == "admin" %}
+                <a href="/admin">Admin Panel</a>
+            {% endif %}
+            <a href="/logout">Logout</a>
+            <span>Welcome, {{ current_user.username }}!</span>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {% endif %}
+    </nav>
+
     <h2>Please provide your details:</h2>
+
+    {% if current_user.is_authenticated %}
     <form action="/" method="post">
         <table>
             <tbody>
@@ -144,11 +163,16 @@
         <br>
         <input type="submit" value="Check Fraud Probability">
     </form>
+
     {% if fraud_probability is not none %}
-        <h3 style="color: {{ fraud_risk_color }};">Fraud Risk: {{ fraud_probability | round(3) }}</h3>
+        <h3 style="color: {{ fraud_risk_color }};">Fraud Risk: {{ (fraud_probability or 0) | round(3) }}</h3>
         <p>{{ message }}</p>
         <button onclick="closeWindowAndShutdown()">Leave Application Form</button>
         <button onclick="contactApplicationTeam()">Contact Application Team</button>
     {% endif %}
+    {% else %}
+        <p>Please <a href="/login">log in</a> to access the fraud detection form.</p>
+    {% endif %}
+
 </body>
 </html>

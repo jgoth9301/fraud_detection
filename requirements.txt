@@ -11,3 +11,4 @@ mlflow
 xgboost
 psutil
 kaggle
+flask-login

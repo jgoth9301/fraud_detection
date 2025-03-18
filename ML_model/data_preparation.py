@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 # Load the data
-data_path = "C:/Users/juerg/PycharmProjects/fraud_detection/Kaggle/data/data_synthetic.csv"
+data_path = "/Kaggle_Download/data/data_synthetic.csv"
 df = pd.read_csv(data_path)
 print("✅ Data successfully loaded!")
 
