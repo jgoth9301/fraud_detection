@@ -53,7 +53,7 @@ def main():
     """
 
     # 1) Read the date range from training_timeframe.csv (semicolon-delimited)
-    timeframe_csv = r"C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\ML_model_retraining\training_timeframe.csv"
+    timeframe_csv = "./ML_model/ML_model_retraining/training_timeframe.csv"
     df_timeframe = pd.read_csv(timeframe_csv, delimiter=';')
 
     # We assume exactly one row: columns "id", "start_date", "end_date"
@@ -73,8 +73,8 @@ def main():
     mlflow.set_tracking_uri("file:./ML_model/mlruns")
     mlflow.set_experiment("fraud_detection_retrained")
 
-    # Path to the SQLite DB
-    db_path = r"C:\Users\juerg\PycharmProjects\fraud_detection\HTML_request\instance\fraud_detection.db"
+    # Path to the SQLite DB (use a relative path)
+    db_path = "./HTML_request/instance/fraud_detection.db"
 
     # 3) Connect and load data
     conn = sqlite3.connect(db_path)
@@ -187,7 +187,7 @@ def main():
 
     # Convert results to DataFrame
     results_df = pd.DataFrame(results)
-    tuning_results_path = r"C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\hyperparameter_results\hyperparameter_tuning_results_retrained.csv"
+    tuning_results_path = "./ML_model/hyperparameter_results/hyperparameter_tuning_results_retrained.csv"
     os.makedirs(os.path.dirname(tuning_results_path), exist_ok=True)
     results_df.to_csv(tuning_results_path, index=False)
     print(f"Results saved to: {tuning_results_path}")
