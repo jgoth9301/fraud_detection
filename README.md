@@ -1,36 +1,96 @@
-# My Habit-Tracking App / Project
+# Fraud Detection in a Government Agency – MLOps
 
-Useful information on installing and operating the app
+This repository implements a fraud detection solution designed for a government agency. The project integrates data acquisition, automated machine learning model retraining, and a web-based interface for result display and administration. The MLOps practices employed here help ensure that the model stays up-to-date with periodic retraining and registration.
 
-https://github.com/jgoth9301/habittracker_app
+## Repository Structure
 
-## What is this app about?
-This app is a habit tracking tool designed to help users build good habits and break bad ones. It allows users to define tasks they want to complete periodically, like daily workouts or annual appointments, and track their progress over time. By marking tasks as completed, users can build streaks and receive insights about their habits, such as their longest streaks or which habits need improvement. Focused on functionality, the app enables users to manage and analyze habits effectively without distractions, using Python-based object-oriented and functional programming. It’s a straightforward and powerful tool for personal growth and productivity.
+Below is a description of every file and folder in the repository:
 
-## Installation instructions
-To set up the habit tracking app, ensure you have Python installed (version 3.8 or higher). Clone the repository, navigate to the project directory, and install required dependencies using pip install -r requirements.txt. Once installed, you can run the app with python main.py.
+### Top-Level Files
+
+- **.gitignore**  
+  Specifies files and directories that should be ignored by Git (e.g., local configurations, logs, or other temporary files).
+
+- **README.md**  
+  This file – providing an overview of the project, descriptions of the repository contents, and instructions for installation, usage, and testing.
+
+- **requirements.txt**  
+  Contains a list of all Python dependencies required to run the project (for example, Flask, SQLAlchemy, pandas, python-dateutil, etc.). Run `pip install -r requirements.txt` to install them.
+
+### .github Folder
+
+- **.github/workflows/ci.yaml**  
+  Contains the GitHub Actions workflow definition that automates the monthly model retraining process. The workflow:
+  - Runs on the first day of each month (UTC midnight).
+  - Updates the training timeframe CSV file with the previous month’s start and end dates.
+  - Executes the model retraining script.
+  - Executes the model registration script.
+
+### HTML_request Folder
+
+This folder contains the HTML templates for the web interface.
+
+- **dashboard.html**  
+  The main dashboard template that welcomes the user and displays different options based on their role. For example:
+  - **Admins** see buttons for “Result Predictions” and “Admin Configuration.”
+  - **Regular users** see an option to start a new fraud detection request.
+
+- **predictions.html**  
+  An admin-only view that displays fraud detection predictions in a table format. This template iterates over a collection of prediction records passed from the Flask view.
+
+### Kaggle_Download Folder
+
+This folder includes scripts and resources for downloading datasets from Kaggle. The scripts here automate the process of retrieving updated data, which is then used in the fraud detection analysis and model training.  
+> *Note: Specific file names are not detailed, but expect one or more Python scripts that use the Kaggle API or similar functionality.*
+
+### ML_model Folder
+
+Houses all components related to the machine learning model.
+
+#### ML_model/ML_model_retraining Subfolder
+
+- **training_timeframe.csv**  
+  A CSV file that holds the training timeframe information. It uses a semicolon-separated format with the header:  
+  `id;start_date;end_date`  
+  An example record might be:  
+  `1;01.01.2025 00:00:00;31.12.2025 23:59:59`  
+  This file is updated monthly by the GitHub Actions workflow to reflect the previous month’s timeframe.
+
+- **model_training_retrain.py**  
+  A Python script that retrains the fraud detection model using the updated timeframe from `training_timeframe.csv`. This script is executed automatically by the CI workflow.
+
+- **model_registration_retrain.py**  
+  A Python script that registers the newly trained model into the system. This ensures that the latest model is deployed for fraud detection operations. It is also executed by the CI workflow.
+
+## Usage
+
+1. **Automated Retraining:**  
+   GitHub Actions will run the workflow (`ci.yaml`) on the first day of each month. The workflow updates the training timeframe, retrains the model, and registers it.
+
+2. **Web Interface:**  
+   The HTML templates (in the `HTML_request` folder) are used by a Flask application to render the dashboard and predictions views. The dashboard adapts its options based on whether the user is an admin or a regular user.
+
+3. **Data Handling:**  
+   Use the scripts in the `Kaggle_Download` folder to update or download new datasets from Kaggle as needed.
+
+## Getting Started
+
+- **Clone the repository:**
+
+  ```bash
+  git clone https://github.com/jgoth9301/fraud_detection.git
+  cd fraud_detection
+
+Install dependencies:
 ```shell
 pip install -r requirements.txt
 ```
 
-## Usage instructions
-The main.py file serves as the entry point for the application, orchestrating its core functionality. It initializes and runs the program, connecting key components like habit creation and tracking. This file includes detailed function docstrings to make the code easy to understand and navigate, ensuring clarity for all users and developers. By running main.py, users can interact with the app directly. Its structure ensures the program is intuitive, well-documented, and easy to maintain or extend.
-Start...
-```shell
-python main.py
-```
+Testing the Workflows:
+The GitHub Actions workflow can be monitored and, if needed, triggered manually from the repository’s Actions tab.
 
-and follow instructions on screen.
+This README provides a concise overview of each component within the repository. For more detailed documentation, please refer to the inline comments in the scripts and templates.
 
-Additional code is structured into modular components with logically separated files to enhance readability and maintainability:
+---
 
-dp.py => Creation and maintenance the SQL table structure in SQLite3 to efficiently store and manage app data.          
-counter.py => Storage of functional code modules for managing habit & tracking operations (creation, deletion, reset functionality).    
-analyse.py => Storage of functional code modules for managing the analysis of tracking information.
-
-
-## Test instructions
-The test_project.py file is designed to ensure the reliability and correctness of the application by running automated tests. It verifies key features, such as creating habits, tracking progress, and analyzing streaks, to ensure they work as expected. By using this file, developers can identify bugs early, validate changes, and maintain the app’s functionality over time. To run the tests, simply execute the file using a testing framework like pytest or unittest. Regular testing helps keep the project stable and robust.
-```shell
-python -m pytest
-```
+You can now save this content as `README.md` in your repository for direct download and reference.
