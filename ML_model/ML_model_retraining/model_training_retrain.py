@@ -64,8 +64,13 @@ def main():
     start_date_dt = pd.to_datetime(start_date_str, dayfirst=True)
     end_date_dt = pd.to_datetime(end_date_str, dayfirst=True)
 
+    # ----------------------------------------------------------------------------
     # 2) MLflow config
-    mlflow.set_tracking_uri("file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns")
+    #    Use a relative, Linux-friendly path for the local mlruns folder:
+    #    "file:./ML_model/mlruns" will work on both Windows (if run from the project root)
+    #    and Linux (e.g., on GitHub Actions).
+    # ----------------------------------------------------------------------------
+    mlflow.set_tracking_uri("file:./ML_model/mlruns")
     mlflow.set_experiment("fraud_detection_retrained")
 
     # Path to the SQLite DB
@@ -87,7 +92,6 @@ def main():
     # === DEBUG: After parsing timestamps ===
     print("=== DEBUG: After parsing timestamps ===")
     print("df_customer shape:", df_customer.shape)
-    # Print a few sample rows (timestamp + customer_id)
     print(df_customer[['timestamp', 'customer_id']].head(10))
 
     # 4) Filter the customer data by the chosen date range

@@ -5,8 +5,7 @@ from mlflow.tracking import MlflowClient
 from mlflow.exceptions import MlflowException
 
 # Set the tracking URI to use your local mlruns directory.
-mlflow.set_tracking_uri("file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns")
-
+mlflow.set_tracking_uri("file:./ML_model/mlruns")
 
 def register_best_model(
         csv_path,
@@ -75,8 +74,8 @@ def register_best_model(
 
 
 if __name__ == "__main__":
-    # Full path to your hyperparameter tuning results CSV file
-    tuning_results_path = r"C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\hyperparameter_results\hyperparameter_tuning_results_retrained.csv"
+    # Full path to your hyperparameter tuning results CSV file using a relative path.
+    tuning_results_path = "./ML_model/hyperparameter_results/hyperparameter_tuning_results_retrained.csv"
 
     register_best_model(
         csv_path=tuning_results_path,
