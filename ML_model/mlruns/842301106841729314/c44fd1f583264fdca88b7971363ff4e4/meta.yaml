@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\mlruns/842301106841729314/c44fd1f583264fdca88b7971363ff4e4/artifacts
+end_time: 1742380521612
+entry_point_name: ''
+experiment_id: '842301106841729314'
+lifecycle_stage: active
+run_id: c44fd1f583264fdca88b7971363ff4e4
+run_name: victorious-robin-147
+run_uuid: c44fd1f583264fdca88b7971363ff4e4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742380500247
+status: 3
+tags: []
+user_id: juerg
