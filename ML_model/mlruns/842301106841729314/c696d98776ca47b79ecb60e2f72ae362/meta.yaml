@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\mlruns/842301106841729314/c696d98776ca47b79ecb60e2f72ae362/artifacts
+end_time: 1742369228290
+entry_point_name: ''
+experiment_id: '842301106841729314'
+lifecycle_stage: active
+run_id: c696d98776ca47b79ecb60e2f72ae362
+run_name: honorable-gnu-665
+run_uuid: c696d98776ca47b79ecb60e2f72ae362
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742369198198
+status: 3
+tags: []
+user_id: juerg
