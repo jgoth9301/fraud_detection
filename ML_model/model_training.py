@@ -129,7 +129,8 @@ def main():
                     "run_id": run_id,
                     "max_depth": max_depth,
                     "n_estimators": n_estimators,
-                    "accuracy": acc,
+                    "accuracy":
+                        acc,
                     "precision": prec,
                     "recall": rec,
                     "f1_score": f1

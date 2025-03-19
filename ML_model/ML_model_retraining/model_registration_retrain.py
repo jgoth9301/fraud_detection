@@ -5,18 +5,10 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from mlflow.exceptions import MlflowException
 
-# Define the base directory (on C: drive)
-base_dir = r"C:\Users\juerg\PycharmProjects\fraud_detection"
-
-# Set the tracking URI dynamically using the base directory.
-tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
-mlflow.set_tracking_uri(tracking_uri)
-
 def register_best_model(
         csv_path,
         model_name="fraud_detection_rf",  # Name for your model in the registry
-        artifact_path="final_rf_model_5classes_retrained"
-        # Must match the artifact path used in mlflow.sklearn.log_model
+        artifact_path="final_rf_model_5classes_retrained"  # Must match the artifact path used in mlflow.sklearn.log_model
 ):
     """
     Reads the CSV file with hyperparameter tuning results,
@@ -40,11 +32,23 @@ def register_best_model(
 
     # 3) Extract the run_id for the best model
     best_run_id = best_model_row["run_id"]
+    print(f"Best run id: {best_run_id}")
 
-    # 4) Construct the model URI using run_id and artifact_path
+    # 4) Check if the run exists in the MLflow tracking store
+    client = MlflowClient()
+    try:
+        run_info = client.get_run(best_run_id)
+    except Exception as e:
+        raise MlflowException(
+            f"Run '{best_run_id}' not found in MLflow tracking store. "
+            f"Please ensure that the run exists and has not been deleted. Error: {e}"
+        )
+
+    # 5) Construct the model URI using run_id and artifact_path
     model_uri = f"runs:/{best_run_id}/{artifact_path}"
+    print(f"Model URI: {model_uri}")
 
-    # 5) Register the model in the MLflow Model Registry
+    # 6) Register the model in the MLflow Model Registry
     result = mlflow.register_model(
         model_uri=model_uri,
         name=model_name
@@ -54,8 +58,7 @@ def register_best_model(
     print(f"   Name: {result.name}")
     print(f"   Version: {new_version}")
 
-    # 6) Wait until the new model version reaches "READY" status (up to ~10 seconds)
-    client = MlflowClient()
+    # 7) Wait until the new model version reaches "READY" status (up to ~10 seconds)
     for _ in range(10):
         model_version_details = client.get_model_version(
             name=model_name,
@@ -69,7 +72,7 @@ def register_best_model(
             f"Model version {new_version} for {model_name} did not reach 'READY' status in time."
         )
 
-    # 7) Promote the new model version to Production
+    # 8) Promote the new model version to Production
     client.transition_model_version_stage(
         name=model_name,
         version=new_version,
@@ -78,8 +81,20 @@ def register_best_model(
     print(f"🚀 Model '{model_name}' (version {new_version}) has been promoted to Production.")
 
 if __name__ == "__main__":
-    # Full path to your hyperparameter tuning results CSV file, built dynamically using the base directory.
+    # Dynamically determine the project root.
+    # This script is located in:
+    # C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\ML_model_retraining\model_registration_retrain.py
+    # So we move up three levels to reach the project root.
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Set the MLflow tracking URI to the correct folder where your runs are stored.
+    tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
+    mlflow.set_tracking_uri(tracking_uri)
+    print(f"Using tracking URI: {mlflow.get_tracking_uri()}")
+
+    # Build the full path to the hyperparameter tuning results CSV file.
     tuning_results_path = os.path.join(base_dir, "ML_model", "hyperparameter_results", "hyperparameter_tuning_results_retrained.csv")
+    print(f"Using tuning results CSV file at: {tuning_results_path}")
 
     register_best_model(
         csv_path=tuning_results_path,

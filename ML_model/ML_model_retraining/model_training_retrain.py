@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler
 from mlflow.models.signature import infer_signature
 
+
 def create_risk_group(df, sum_col="claim_sum"):
     """
     Uses an existing 'claim_sum' column to assign a risk group (1 to 5) via pd.qcut,
@@ -18,6 +19,7 @@ def create_risk_group(df, sum_col="claim_sum"):
     df["Risk_Group"] = pd.qcut(df[sum_col], q=5, labels=False, duplicates="drop") + 1
     df.drop(columns=[sum_col], inplace=True)
     return df
+
 
 def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_estimators):
     """
@@ -38,6 +40,7 @@ def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_esti
 
     return rf, acc, prec, rec, f1
 
+
 def main():
     """
     Main function:
@@ -49,11 +52,12 @@ def main():
     5) Merges them on 'customer_id' -> single DataFrame.
     6) Creates a 1–5 Risk_Group from 'claim_sum'.
     7) Performs hyperparameter tuning for a RandomForest, logs runs to MLflow,
-       saves results, prints best model info, retrains the best model, and logs it.
+       saves results (including a "Result" column marking the best model), prints best model info,
+       retrains the best model, and logs it.
     """
 
-    # Define the base directory (on C: drive)
-    base_dir = r"C:\Users\juerg\PycharmProjects\fraud_detection"
+    # Set the project root as the base directory by moving up three levels from this script.
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     # 1) Read the date range from training_timeframe.csv (semicolon-delimited)
     timeframe_csv = os.path.join(base_dir, "ML_model", "ML_model_retraining", "training_timeframe.csv")
@@ -61,34 +65,34 @@ def main():
 
     # We assume exactly one row: columns "id", "start_date", "end_date"
     start_date_str = df_timeframe.loc[0, "start_date"]  # e.g. "01.01.2025 00:00:00"
-    end_date_str = df_timeframe.loc[0, "end_date"]      # e.g. "31.01.2025 23:59:59"
+    end_date_str = df_timeframe.loc[0, "end_date"]  # e.g. "31.01.2025 23:59:59"
 
-    # Convert to datetime with dayfirst=True so "01.01.2025 00:00:00" is parsed as 1 Jan 2025
+    # Convert to datetime with dayfirst=True
     start_date_dt = pd.to_datetime(start_date_str, dayfirst=True)
     end_date_dt = pd.to_datetime(end_date_str, dayfirst=True)
 
-    # 2) MLflow config
+    # 2) MLflow config: Tracking URI from project root / ML_model/mlruns folder
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment("fraud_detection_retrained")
 
-    # Path to the SQLite DB
+    # 3) Construct the path to the SQLite DB (located under HTML_request/instance)
     db_path = os.path.join(base_dir, "HTML_request", "instance", "fraud_detection.db")
 
-    # 3) Connect and load data
+    # Connect and load data from the database
     conn = sqlite3.connect(db_path)
     df_customer = pd.read_sql_query("SELECT * FROM fraud_detection", conn)
     df_claim = pd.read_sql_query("SELECT * FROM claim_tracking", conn)
     conn.close()
 
-    # Convert 'timestamp' column to datetime, also dayfirst=True
+    # Convert 'timestamp' column to datetime
     df_customer['timestamp'] = pd.to_datetime(
         df_customer['timestamp'],
         dayfirst=True,
         errors='coerce'
     )
 
-    # === DEBUG: After parsing timestamps ===
+    # Debug: After parsing timestamps
     print("=== DEBUG: After parsing timestamps ===")
     print("df_customer shape:", df_customer.shape)
     print(df_customer[['timestamp', 'customer_id']].head(10))
@@ -97,7 +101,7 @@ def main():
     df_customer = df_customer[
         (df_customer['timestamp'] >= start_date_dt) &
         (df_customer['timestamp'] <= end_date_dt)
-    ]
+        ]
 
     print("\n=== DEBUG: After date filtering ===")
     print("df_customer shape:", df_customer.shape)
@@ -182,20 +186,24 @@ def main():
 
     # Convert results to DataFrame
     results_df = pd.DataFrame(results)
-    tuning_results_path = os.path.join(base_dir, "ML_model", "hyperparameter_results", "hyperparameter_tuning_results_retrained.csv")
+
+    # Find best model by accuracy and add "Result" column
+    best_idx = results_df["accuracy"].idxmax()
+    results_df["Result"] = "NO"
+    results_df.loc[best_idx, "Result"] = "YES"
+
+    # Save the CSV AFTER adding the "Result" column
+    tuning_results_path = os.path.join(base_dir, "ML_model", "hyperparameter_results",
+                                       "hyperparameter_tuning_results_retrained.csv")
     os.makedirs(os.path.dirname(tuning_results_path), exist_ok=True)
     results_df.to_csv(tuning_results_path, index=False)
     print(f"Results saved to: {tuning_results_path}")
 
-    # Find best model by accuracy
-    best_idx = results_df["accuracy"].idxmax()
-    results_df["Result"] = "NO"
-    results_df.loc[best_idx, "Result"] = "YES"
-    best_model_info = results_df.loc[best_idx]
     print("\nBest Model Found:")
+    best_model_info = results_df.loc[best_idx]
     print(best_model_info)
 
-    # Retrain final model with best hyperparams
+    # Retrain final model with best hyperparameters
     best_max_depth = int(best_model_info["max_depth"])
     best_n_estimators = int(best_model_info["n_estimators"])
     final_model, acc_final, prec_final, rec_final, f1_final = train_and_evaluate_model(
@@ -220,6 +228,7 @@ def main():
     print("\nFinal model trained and logged to MLflow!")
     print(f"Final Accuracy: {acc_final:.3f}, F1-Score: {f1_final:.3f}")
     mlflow.end_run()
+
 
 if __name__ == "__main__":
     main()
