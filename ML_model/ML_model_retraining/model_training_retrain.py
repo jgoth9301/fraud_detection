@@ -10,7 +10,6 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler
 from mlflow.models.signature import infer_signature
 
-
 def create_risk_group(df, sum_col="claim_sum"):
     """
     Uses an existing 'claim_sum' column to assign a risk group (1 to 5) via pd.qcut,
@@ -19,7 +18,6 @@ def create_risk_group(df, sum_col="claim_sum"):
     df["Risk_Group"] = pd.qcut(df[sum_col], q=5, labels=False, duplicates="drop") + 1
     df.drop(columns=[sum_col], inplace=True)
     return df
-
 
 def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_estimators):
     """
@@ -40,7 +38,6 @@ def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_esti
 
     return rf, acc, prec, rec, f1
 
-
 def main():
     """
     Main function:
@@ -56,12 +53,14 @@ def main():
        retrains the best model, and logs it.
     """
 
-    # Use os.getcwd() when running in a CI environment (e.g. GitHub Actions),
-    # otherwise, compute base_dir relative to this script's location.
+    # Determine the project root:
+    # In CI, use os.getcwd() (which is the repository root), otherwise compute it relative to this script.
     if os.getenv("CI"):
         base_dir = os.getcwd()
     else:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # Normalize base_dir to use forward slashes (important on Linux)
+    base_dir = base_dir.replace("\\", "/")
     print(f"Base directory: {base_dir}")
 
     # 1) Read the date range from training_timeframe.csv (semicolon-delimited)
@@ -76,11 +75,13 @@ def main():
     start_date_dt = pd.to_datetime(start_date_str, dayfirst=True)
     end_date_dt = pd.to_datetime(end_date_str, dayfirst=True)
 
-    # 2) MLflow config: Set tracking URI to the mlruns folder relative to the repo root.
+    # 2) MLflow config: Set tracking URI relative to the repository root.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
+    # Normalize the tracking URI as well
+    tracking_uri = tracking_uri.replace("\\", "/")
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment("fraud_detection_retrained")
-    print(f"Tracking URI: {mlflow.get_tracking_uri()}")
+    print(f"Using tracking URI: {mlflow.get_tracking_uri()}")
 
     # 3) Construct the path to the SQLite DB (located under HTML_request/instance)
     db_path = os.path.join(base_dir, "HTML_request", "instance", "fraud_detection.db")
