@@ -28,6 +28,9 @@ jobs:
           pip install -r requirements.txt
 
       # 4) Update training timeframe by running update_training_timeframe.py
+      - name: Update training timeframe
+        run: |
+          python ML_model/ML_model_retraining/training_timeframe_update.py
 
       # 5) Retrain the model
       - name: Retrain model

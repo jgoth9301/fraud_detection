@@ -82,15 +82,19 @@ def register_best_model(
 
 if __name__ == "__main__":
     # When running in a CI environment, use the current working directory as the project root.
-    # Otherwise, compute the project root relative to this script.
+    # Otherwise, compute the project root relative to this script's location.
     if os.getenv("CI"):
         base_dir = os.getcwd()
     else:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # Normalize the base directory to use forward slashes
+    base_dir = base_dir.replace("\\", "/")
     print(f"Base directory: {base_dir}")
 
     # Set the MLflow tracking URI to the correct folder where your runs are stored.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
+    # Normalize the tracking URI as well
+    tracking_uri = tracking_uri.replace("\\", "/")
     mlflow.set_tracking_uri(tracking_uri)
     print(f"Using tracking URI: {mlflow.get_tracking_uri()}")
 
