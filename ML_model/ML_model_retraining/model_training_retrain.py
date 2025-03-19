@@ -56,8 +56,13 @@ def main():
        retrains the best model, and logs it.
     """
 
-    # Set the project root as the base directory by moving up three levels from this script.
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # Use os.getcwd() when running in a CI environment (e.g. GitHub Actions),
+    # otherwise, compute base_dir relative to this script's location.
+    if os.getenv("CI"):
+        base_dir = os.getcwd()
+    else:
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    print(f"Base directory: {base_dir}")
 
     # 1) Read the date range from training_timeframe.csv (semicolon-delimited)
     timeframe_csv = os.path.join(base_dir, "ML_model", "ML_model_retraining", "training_timeframe.csv")
@@ -65,16 +70,17 @@ def main():
 
     # We assume exactly one row: columns "id", "start_date", "end_date"
     start_date_str = df_timeframe.loc[0, "start_date"]  # e.g. "01.01.2025 00:00:00"
-    end_date_str = df_timeframe.loc[0, "end_date"]  # e.g. "31.01.2025 23:59:59"
+    end_date_str = df_timeframe.loc[0, "end_date"]        # e.g. "31.01.2025 23:59:59"
 
     # Convert to datetime with dayfirst=True
     start_date_dt = pd.to_datetime(start_date_str, dayfirst=True)
     end_date_dt = pd.to_datetime(end_date_str, dayfirst=True)
 
-    # 2) MLflow config: Tracking URI from project root / ML_model/mlruns folder
+    # 2) MLflow config: Set tracking URI to the mlruns folder relative to the repo root.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment("fraud_detection_retrained")
+    print(f"Tracking URI: {mlflow.get_tracking_uri()}")
 
     # 3) Construct the path to the SQLite DB (located under HTML_request/instance)
     db_path = os.path.join(base_dir, "HTML_request", "instance", "fraud_detection.db")
@@ -101,7 +107,7 @@ def main():
     df_customer = df_customer[
         (df_customer['timestamp'] >= start_date_dt) &
         (df_customer['timestamp'] <= end_date_dt)
-        ]
+    ]
 
     print("\n=== DEBUG: After date filtering ===")
     print("df_customer shape:", df_customer.shape)

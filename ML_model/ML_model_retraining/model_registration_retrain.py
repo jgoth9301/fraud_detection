@@ -81,11 +81,13 @@ def register_best_model(
     print(f"🚀 Model '{model_name}' (version {new_version}) has been promoted to Production.")
 
 if __name__ == "__main__":
-    # Dynamically determine the project root.
-    # This script is located in:
-    # C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\ML_model_retraining\model_registration_retrain.py
-    # So we move up three levels to reach the project root.
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # When running in a CI environment, use the current working directory as the project root.
+    # Otherwise, compute the project root relative to this script.
+    if os.getenv("CI"):
+        base_dir = os.getcwd()
+    else:
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    print(f"Base directory: {base_dir}")
 
     # Set the MLflow tracking URI to the correct folder where your runs are stored.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
