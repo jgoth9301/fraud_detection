@@ -1,0 +1,15 @@
+artifact_uri: file:///C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\mlruns/842301106841729314/e8b470d178464698822fba5fb44ce880/artifacts
+end_time: 1742290645626
+entry_point_name: ''
+experiment_id: '842301106841729314'
+lifecycle_stage: active
+run_id: e8b470d178464698822fba5fb44ce880
+run_name: rogue-elk-87
+run_uuid: e8b470d178464698822fba5fb44ce880
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742290614346
+status: 3
+tags: []
+user_id: juerg

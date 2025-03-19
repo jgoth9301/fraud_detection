@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1742282522784
+current_stage: Production
+description: null
+last_updated_timestamp: 1742282522816
+name: fraud_detection_rf
+run_id: 5dfbf33f3dd540929e3fc894e992bc3e
+run_link: null
+source: file:///C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\mlruns/155861433539234828/5dfbf33f3dd540929e3fc894e992bc3e/artifacts/final_rf_model_5classes
+status: READY
+status_message: null
+storage_location: file:///C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\mlruns/155861433539234828/5dfbf33f3dd540929e3fc894e992bc3e/artifacts/final_rf_model_5classes
+user_id: null
+version: 1
