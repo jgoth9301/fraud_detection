@@ -1,11 +1,16 @@
+import os
 import time
 import pandas as pd
 import mlflow
 from mlflow.tracking import MlflowClient
 from mlflow.exceptions import MlflowException
 
-# Explizit die Tracking-URI setzen, sodass das mlruns-Verzeichnis verwendet wird.
-mlflow.set_tracking_uri("file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns")
+# Dynamisch das aktuelle Skript-Verzeichnis ermitteln (innerhalb von ML_model)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Dynamisch die Tracking-URI für mlruns setzen (mlruns-Ordner innerhalb von ML_model)
+tracking_uri = "file:///" + os.path.join(current_dir, "mlruns")
+mlflow.set_tracking_uri(tracking_uri)
 
 def register_best_model(
         csv_path,
@@ -13,7 +18,7 @@ def register_best_model(
         artifact_path="final_rf_model_5classes"  # Pfad, der in mlflow.sklearn.log_model verwendet wurde
 ):
     """
-    Liest die CSV-Datei mit den Ergebnissen der Hyperparameter-Tuning,
+    Liest die CSV-Datei mit den Ergebnissen des Hyperparameter-Tunings,
     sucht die Zeile, in der 'Result' == 'YES' steht, extrahiert die run_id
     und registriert das Modell in der MLflow Model Registry unter 'model_name'.
     Nach der Registrierung wird die Modellversion automatisch auf 'Production'
@@ -65,8 +70,8 @@ def register_best_model(
     print(f"🚀 Model '{model_name}' (version {new_version}) has been promoted to Production.")
 
 if __name__ == "__main__":
-    # Pfad zur CSV-Datei mit den Hyperparameter-Tuning-Ergebnissen
-    tuning_results_path = r"C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\hyperparameter_results\hyperparameter_tuning_results.csv"
+    # Dynamischer Pfad zur CSV-Datei mit den Hyperparameter-Tuning-Ergebnissen
+    tuning_results_path = os.path.join(current_dir, "hyperparameter_results", "hyperparameter_tuning_results.csv")
 
     # Funktion aufrufen, um das beste Modell zu registrieren und in Production zu setzen
     register_best_model(

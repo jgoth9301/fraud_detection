@@ -2,9 +2,11 @@ import os
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-# Load the data
-data_path = "/Kaggle_Download/data/data_synthetic.csv"
-df = pd.read_csv(data_path)
+# __file__ is the current script’s path (data_preparation.py)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(CURRENT_DIR, "..", "Kaggle_Download", "data", "data_synthetic.csv")
+
+df = pd.read_csv(DATA_PATH)
 print("✅ Data successfully loaded!")
 
 # Remove the Risk_Score column if it exists
@@ -35,13 +37,17 @@ for col in df.select_dtypes(include=["object"]).columns:
 
 print("✅ Categorical values encoded.")
 
-# 2️⃣ **Save prepared data**
-# First save as prepared_data.csv (if needed)
-output_prepared_path = "C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/data/prepared_data.csv"
+# Get the directory where data_preparation.py is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Build the output path relative to the current directory.
+# This will create the 'data' folder inside the 'ML_model' folder.
+output_prepared_path = os.path.join(current_dir, "data", "prepared_data.csv")
+
 # Ensure directory exists for prepared_data.csv
 output_dir = os.path.dirname(output_prepared_path)
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
-df.to_csv(output_prepared_path, index=False)
 
-print(f"💾 Prepared data saved at: {output_prepared_path}")
+df.to_csv(output_prepared_path, index=False)
+print(f"✅ Prepared data saved at: {output_prepared_path}")

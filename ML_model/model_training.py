@@ -9,28 +9,27 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler
 from mlflow.models.signature import infer_signature
 
+
 def create_risk_group(df, sum_col="Claim_Sum"):
     """
-    Uses an existing 'Claim_Sum' column to assign a risk group (1 to 5) via pd.qcut,
-    then drops 'Claim_Sum' so it will not be used as a feature.
+    Erzeugt aus der vorhandenen 'Claim_Sum' Spalte eine Risiko-Gruppe (1 bis 5) mittels pd.qcut,
+    und entfernt danach die 'Claim_Sum', damit sie nicht als Feature verwendet wird.
     """
-    # 1) Create a 1–5 risk group from the existing 'Claim_Sum'
     df["Risk_Group"] = pd.qcut(df[sum_col], q=5, labels=False, duplicates="drop") + 1
-
-    # 2) Drop the 'Claim_Sum' column, keeping only 'Risk_Group'
     df.drop(columns=[sum_col], inplace=True)
-
     return df
+
 
 def load_data(csv_path):
     """
-    Loads the prepared CSV into a DataFrame.
+    Lädt die vorbereitete CSV-Datei in ein DataFrame.
     """
     return pd.read_csv(csv_path)
 
+
 def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_estimators):
     """
-    Trains a RandomForestClassifier with the given hyperparameters and returns performance metrics.
+    Trainiert einen RandomForestClassifier mit den übergebenen Hyperparametern und gibt die Metriken zurück.
     """
     rf = RandomForestClassifier(
         n_estimators=n_estimators,
@@ -38,35 +37,37 @@ def train_and_evaluate_model(X_train, y_train, X_test, y_test, max_depth, n_esti
         random_state=42
     )
     rf.fit(X_train, y_train)
-
     y_pred = rf.predict(X_test)
-
     acc = accuracy_score(y_test, y_pred)
     prec = precision_score(y_test, y_pred, average="weighted", zero_division=0)
     rec = recall_score(y_test, y_pred, average="weighted", zero_division=0)
     f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
-
     return rf, acc, prec, rec, f1
+
 
 def main():
     """
-    Main function: loads data, uses the existing 'Claim_Sum' column to create a 1–5 Risk_Group,
-    performs hyperparameter tuning for a RandomForest, logs all runs to MLflow, saves the tuning
-    results to a CSV, and prints the best model info.
+    Hauptfunktion: Lädt die Daten, erzeugt aus der 'Claim_Sum' Spalte eine Risiko-Gruppe (1–5),
+    führt eine Hyperparameter-Tuning für den RandomForest durch, loggt die Ergebnisse mit MLflow,
+    speichert diese als CSV und gibt das beste Modell aus.
     """
-    # 1) Explizit die Tracking-URI setzen:
-    mlflow.set_tracking_uri("file:///C:/Users/juerg/PycharmProjects/fraud_detection/ML_model/mlruns")
+    # Dynamisch den Pfad des aktuellen Skripts ermitteln (innerhalb von ML_model)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Pfad zur vorbereiteten CSV
-    prepared_data_path = r"C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\data\prepared_data.csv"
+    # Dynamisch erstellte Tracking-URI für MLflow (mlruns-Ordner innerhalb ML_model)
+    tracking_uri = "file:///" + os.path.join(current_dir, "mlruns")
+    mlflow.set_tracking_uri(tracking_uri)
 
-    # Pfad zum Speichern der Hyperparameter-Ergebnisse
-    tuning_results_path = r"C:\Users\juerg\PycharmProjects\fraud_detection\ML_model\hyperparameter_results\hyperparameter_tuning_results.csv"
+    # Dynamischer Pfad zur vorbereiteten CSV-Datei (data-Ordner innerhalb ML_model)
+    prepared_data_path = os.path.join(current_dir, "data", "prepared_data.csv")
 
-    # Sicherstellen, dass der Zielordner existiert
+    # Dynamischer Pfad zum Speichern der Hyperparameter-Ergebnisse (hyperparameter_results-Ordner innerhalb ML_model)
+    tuning_results_path = os.path.join(current_dir, "hyperparameter_results", "hyperparameter_tuning_results.csv")
+
+    # Sicherstellen, dass der Zielordner für die Tuning-Ergebnisse existiert
     os.makedirs(os.path.dirname(tuning_results_path), exist_ok=True)
 
-    # 2) MLflow-Konfiguration: Experiment festlegen
+    # MLflow Experiment festlegen
     mlflow.set_experiment("fraud_detection_risk_model_5_classes")
 
     with mlflow.start_run(run_name="RandomForest-RiskGroup-5classes") as run:
@@ -139,10 +140,8 @@ def main():
         # Ergebnisse in DataFrame
         results_df = pd.DataFrame(results)
 
-        # Bestes Modell nach Accuracy
+        # Bestes Modell nach Accuracy ermitteln
         best_idx = results_df["accuracy"].idxmax()
-
-        # Bestes Modell markieren
         results_df["Result"] = "NO"
         results_df.loc[best_idx, "Result"] = "YES"
 
@@ -150,7 +149,7 @@ def main():
         results_df.to_csv(tuning_results_path, index=False)
         print(f"Results saved to: {tuning_results_path}")
 
-        # Info zum besten Modell ausgeben
+        # Beste Modellinformationen ausgeben
         best_model_info = results_df.loc[best_idx]
         print("\nBest Model Found:")
         print(best_model_info)
@@ -187,6 +186,7 @@ def main():
         print(f"Final Accuracy: {acc_final:.3f}, F1-Score: {f1_final:.3f}")
 
         mlflow.end_run()
+
 
 if __name__ == "__main__":
     main()

@@ -52,7 +52,11 @@
     <h2>Please provide your details:</h2>
 
     {% if current_user.is_authenticated %}
-    <form action="/" method="post">
+    <!--
+         IMPORTANT: change the action to "/user_request" (or {{ url_for("user_request") }}),
+         and method="POST" so the form data is handled by user_request() in app.py
+    -->
+    <form action="{{ url_for('user_request') }}" method="POST">
         <table>
             <tbody>
                 <tr>
