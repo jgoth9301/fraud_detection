@@ -53,13 +53,17 @@ def main():
        retrains the best model, and logs it.
     """
 
+    # For debugging: print the CI environment variable.
+    ci_env = os.getenv("CI")
+    print(f"CI environment variable: {ci_env}")
+
     # Determine the project root:
-    # In CI, use os.getcwd() (which is the repository root), otherwise compute it relative to this script.
-    if os.getenv("CI"):
+    # If in CI, use os.getcwd() (repository root on GitHub Actions); otherwise, compute relative to this script.
+    if ci_env and ci_env.lower() == "true":
         base_dir = os.getcwd()
     else:
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # Normalize base_dir to use forward slashes (important on Linux)
+    # Normalize to forward slashes
     base_dir = base_dir.replace("\\", "/")
     print(f"Base directory: {base_dir}")
 
@@ -75,7 +79,7 @@ def main():
     start_date_dt = pd.to_datetime(start_date_str, dayfirst=True)
     end_date_dt = pd.to_datetime(end_date_str, dayfirst=True)
 
-    # 2) MLflow config: Set tracking URI relative to the repository root.
+    # 2) MLflow config: Set tracking URI to the mlruns folder relative to the repository root.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
     # Normalize the tracking URI as well
     tracking_uri = tracking_uri.replace("\\", "/")
@@ -239,3 +243,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

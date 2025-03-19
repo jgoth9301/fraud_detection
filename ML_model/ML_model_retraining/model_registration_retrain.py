@@ -81,17 +81,17 @@ def register_best_model(
     print(f"🚀 Model '{model_name}' (version {new_version}) has been promoted to Production.")
 
 if __name__ == "__main__":
-    # When running in a CI environment, use the current working directory as the project root.
-    # Otherwise, compute the project root relative to this script's location.
+    # Determine if we're running in a CI environment (GitHub Actions, etc.)
     if os.getenv("CI"):
         base_dir = os.getcwd()
     else:
+        # Compute project root relative to this script (move up three levels)
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # Normalize the base directory to use forward slashes
+    # Normalize base_dir to use forward slashes
     base_dir = base_dir.replace("\\", "/")
     print(f"Base directory: {base_dir}")
 
-    # Set the MLflow tracking URI to the correct folder where your runs are stored.
+    # Set the MLflow tracking URI to point to the mlruns folder under ML_model in the project root.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
     # Normalize the tracking URI as well
     tracking_uri = tracking_uri.replace("\\", "/")
@@ -107,3 +107,4 @@ if __name__ == "__main__":
         model_name="fraud_detection_rf",
         artifact_path="final_rf_model_5classes_retrained"
     )
+
