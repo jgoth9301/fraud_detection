@@ -81,22 +81,27 @@ def register_best_model(
     print(f"🚀 Model '{model_name}' (version {new_version}) has been promoted to Production.")
 
 if __name__ == "__main__":
-    # Determine if we're running in a CI environment (GitHub Actions, etc.)
+    # If running in CI (e.g. GitHub Actions), use the repository root (os.getcwd())
+    # and set a new experiment name to avoid cached Windows paths.
     if os.getenv("CI"):
         base_dir = os.getcwd()
+        experiment_name = "fraud_detection_retrained_CI"
     else:
-        # Compute project root relative to this script (move up three levels)
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        experiment_name = "fraud_detection_retrained"
     # Normalize base_dir to use forward slashes
     base_dir = base_dir.replace("\\", "/")
     print(f"Base directory: {base_dir}")
 
-    # Set the MLflow tracking URI to point to the mlruns folder under ML_model in the project root.
+    # Set the MLflow tracking URI to the mlruns folder relative to the repository root.
     tracking_uri = "file:///" + os.path.join(base_dir, "ML_model", "mlruns")
-    # Normalize the tracking URI as well
     tracking_uri = tracking_uri.replace("\\", "/")
     mlflow.set_tracking_uri(tracking_uri)
     print(f"Using tracking URI: {mlflow.get_tracking_uri()}")
+
+    # Set experiment name (this will create a new experiment in CI with a Linux-friendly artifact_uri)
+    mlflow.set_experiment(experiment_name)
+    print(f"Using experiment: {experiment_name}")
 
     # Build the full path to the hyperparameter tuning results CSV file.
     tuning_results_path = os.path.join(base_dir, "ML_model", "hyperparameter_results", "hyperparameter_tuning_results_retrained.csv")
